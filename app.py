@@ -1,8 +1,9 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from config.database import get_connection, pool
-
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/create", methods=['POST'])
@@ -19,11 +20,12 @@ def create():
         connection.commit()
         cursor.close()
         pool.putconn(connection)
-        
-        return {"message": "Produto adicionado"}, 201
-    except Exception as e:
-        return {"message": str(e)}, 500
 
+        response = jsonify({"message": "Produto adicionado com sucesso"})     
+        return response
+    except Exception as e:
+        print (e)
+        return {"message": str(e)}, 500
 
 
 @app.route("/delete", methods=['DELETE'])
@@ -42,7 +44,6 @@ def delete():
         return {"message": f"Erro ao deletar o produto: {str(e)}"}, 500
 
     return {"message": "Produto deletado"}, 200
-
 
 
 @app.route("/")
@@ -78,7 +79,6 @@ def update():
         return {"message": str(e)}, 500
 
 
-
 @app.route('/update_add', methods=['PUT'])
 def update_add():
 
@@ -101,6 +101,7 @@ def update_add():
 
     except Exception as e:
         return {"message": "Erro ao atualizar a quantidade do produto: {}".format(e)}, 500
+
 
 @app.route('/update_sub', methods=['PUT'])
 def update_sub():
